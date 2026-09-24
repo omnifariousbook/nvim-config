@@ -183,6 +183,16 @@ do
 
   -- Clear highlights on search when pressing <Esc> in normal mode
   --  See `:help hlsearch`
+
+  -- Personal Keymaps
+  -- Turn to normal mode with `jj`
+  vim.keymap.set("i", "jj", "<ESC>", { silent = true })
+
+  -- Change keybind to switch between tab that open by NeoTree
+vim.keymap.set('n', 'H', 'gT', { desc = 'Previous tab' })
+vim.keymap.set('n', 'L', 'gt', { desc = 'Next tab' })
+
+
   vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
   -- Diagnostic Config & Keymaps
@@ -300,6 +310,11 @@ do
       local kind = ev.data.kind
       if kind ~= 'install' and kind ~= 'update' then return end
 
+       if name == 'markdown-preview.nvim' then
+        run_build(name, { 'npm', 'install' }, ev.data.path .. '/app')
+        return
+      end
+
       if name == 'telescope-fzf-native.nvim' and vim.fn.executable 'make' == 1 then
         run_build(name, { 'make' }, ev.data.path)
         return
@@ -345,6 +360,34 @@ do
   -- and then call its `setup()` function to start it with default settings.
   vim.pack.add { gh 'NMAC427/guess-indent.nvim' }
   require('guess-indent').setup {}
+
+  -- External plugins
+  -- NeoTree
+  vim.pack.add {
+    gh 'nvim-neo-tree/neo-tree.nvim',
+    gh 'nvim-lua/plenary.nvim',
+    gh 'MunifTanjim/nui.nvim',
+    gh 'nvim-tree/nvim-web-devicons',
+  }
+  require('neo-tree').setup {}
+  vim.keymap.set('n', '<leader>e', '<cmd>Neotree toggle<CR>', {
+    desc = 'Toggle Neo-tree',
+  })
+
+  -- Markdown Preview
+  vim.pack.add { gh 'iamcco/markdown-preview.nvim' }
+  vim.g.mkdp_filetypes = { 'markdown' }
+  vim.keymap.set('n', '<leader>mp', '<cmd>MarkdownPreviewToggle<CR>', {
+    desc = 'Markdown Preview',
+  })
+
+  -- Vim and Tmux navigator
+  vim.pack.add { gh 'christoomey/vim-tmux-navigator' }
+  vim.keymap.set('n', '<C-h>', '<cmd>TmuxNavigateLeft<CR>')
+  vim.keymap.set('n', '<C-j>', '<cmd>TmuxNavigateDown<CR>')
+  vim.keymap.set('n', '<C-k>', '<cmd>TmuxNavigateUp<CR>')
+  vim.keymap.set('n', '<C-l>', '<cmd>TmuxNavigateRight<CR>')
+  vim.keymap.set('n', '<C-\\>', '<cmd>TmuxNavigatePrevious<CR>')
 
   -- Here is a more advanced configuration example that passes options to `gitsigns.nvim`
   --
@@ -784,6 +827,7 @@ do
     gh 'mason-org/mason.nvim',
     gh 'mason-org/mason-lspconfig.nvim',
     gh 'WhoIsSethDaniel/mason-tool-installer.nvim',
+    
   }
 
   -- Automatically install LSPs and related tools to stdpath for Neovim
@@ -791,7 +835,7 @@ do
 
   -- Translates between nvim-lspconfig server names and mason.nvim package names (e.g. lua_ls <-> lua-language-server)
   require('mason-lspconfig').setup {
-    automatic_enable = false, -- Change this to true if you want to automatically enable servers that are installed manually (e.g. via :Mason / :MasonInstall)
+    automatic_enable = true, -- Change this to true if you want to automatically enable servers that are installed manually (e.g. via :Mason / :MasonInstall)
   }
 
   -- Ensure the servers and tools above are installed
